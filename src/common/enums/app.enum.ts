@@ -1,0 +1,202 @@
+// src/common/enums/user-role.enum.ts
+export enum UserRole {
+  ADMIN = 'ADMIN',
+  EMPLOYEE = 'EMPLOYEE',
+  SELLER = 'SELLER',
+}
+
+export enum OrderStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  SHIPPED = 'SHIPPED',
+  DELIVERED = 'DELIVERED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum PaymentMethod {
+  CASH = 'CASH',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+}
+
+export enum PaymentStatus {
+  PENDING = 'PENDING',
+  PAID = 'PAID',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+}
+
+export enum DeductionStatus {
+  PENDING = 'PENDING',
+  ACTIVE = 'ACTIVE',
+  COMPLETED = 'COMPLETED',
+  CANCELLED = 'CANCELLED',
+  FAILED = 'FAILED',
+}
+
+export enum DeductionFrequency {
+  MONTHLY = 'MONTHLY',
+  BI_WEEKLY = 'BI_WEEKLY',
+  WEEKLY = 'WEEKLY',
+}
+
+export enum PaymentMethodType {
+  CREDIT_CARD = 'CREDIT_CARD',
+  DEBIT_CARD = 'DEBIT_CARD',
+  MPESA = 'MPESA',
+  BANK_TRANSFER = 'BANK_TRANSFER',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+}
+
+export enum PaymentProvider {
+  STRIPE = 'STRIPE',
+  MPESA = 'MPESA',
+  PAYPAL = 'PAYPAL',
+  INTERNAL = 'INTERNAL',
+}
+
+export enum TransactionStatus {
+  PENDING = 'PENDING',
+  PROCESSING = 'PROCESSING',
+  COMPLETED = 'COMPLETED',
+  FAILED = 'FAILED',
+  REFUNDED = 'REFUNDED',
+  CANCELLED = 'CANCELLED',
+}
+
+export enum NotificationType {
+  ORDER_STATUS = 'ORDER_STATUS',
+  PAYMENT_STATUS = 'PAYMENT_STATUS',
+  SALARY_DEDUCTION = 'SALARY_DEDUCTION',
+  SYSTEM = 'SYSTEM',
+  PRODUCT = 'PRODUCT',
+  ACCOUNT = 'ACCOUNT',
+}
+
+export enum NotificationChannel {
+  EMAIL = 'EMAIL',
+  SMS = 'SMS',
+  PUSH = 'PUSH',
+  IN_APP = 'IN_APP',
+}
+
+export enum EmailTemplate {
+  EMPLOYEE_WELCOME = 'EMPLOYEE_WELCOME',
+  SELLER_WELCOME = 'SELLER_WELCOME',
+  SELLER_VERIFICATION = 'SELLER_VERIFICATION',
+  PASSWORD_RESET = 'PASSWORD_RESET',
+  EMAIL_VERIFICATION = 'EMAIL_VERIFICATION',
+  ACCOUNT_DEACTIVATED = 'ACCOUNT_DEACTIVATED',
+}
+
+export enum MediaPurpose {
+  PRODUCT = 'PRODUCT',
+  PROFILE = 'PROFILE',
+  COMPANY = 'COMPANY',
+  CATEGORY = 'CATEGORY',
+}
+
+export enum ReportType {
+  SALES = 'SALES',
+  ORDERS = 'ORDERS',
+  PRODUCTS = 'PRODUCTS',
+  USERS = 'USERS',
+  PAYMENTS = 'PAYMENTS',
+  SALARY_DEDUCTIONS = 'SALARY_DEDUCTIONS',
+  SELLERS = 'SELLERS',
+}
+
+export enum ReportFrequency {
+  DAILY = 'DAILY',
+  WEEKLY = 'WEEKLY',
+  MONTHLY = 'MONTHLY',
+  QUARTERLY = 'QUARTERLY',
+  YEARLY = 'YEARLY',
+  CUSTOM = 'CUSTOM',
+}
+
+export enum MetricType {
+  COUNT = 'COUNT',
+  SUM = 'SUM',
+  AVERAGE = 'AVERAGE',
+  PERCENTAGE = 'PERCENTAGE',
+  RATIO = 'RATIO',
+}
+
+export enum MediaType {
+  IMAGE = 'IMAGE',
+  VIDEO = 'VIDEO',
+  DOCUMENT = 'DOCUMENT',
+  AUDIO = 'AUDIO',
+}
+
+export enum MediaPurpose {
+  PRODUCT_MAIN = 'PRODUCT_MAIN',
+  PRODUCT_GALLERY = 'PRODUCT_GALLERY',
+  COMPANY_LOGO = 'COMPANY_LOGO',
+  COMPANY_BANNER = 'COMPANY_BANNER',
+  USER_AVATAR = 'USER_AVATAR',
+  CATEGORY_THUMBNAIL = 'CATEGORY_THUMBNAIL',
+  SELLER_LOGO = 'SELLER_LOGO',
+  SELLER_BANNER = 'SELLER_BANNER',
+}
+
+export enum ImageSize {
+  THUMBNAIL = 'THUMBNAIL',
+  SMALL = 'SMALL',
+  MEDIUM = 'MEDIUM',
+  LARGE = 'LARGE',
+  ORIGINAL = 'ORIGINAL',
+}
+
+export enum ReviewType {
+  PRODUCT = 'PRODUCT',
+  SELLER = 'SELLER',
+}
+
+export enum ReviewStatus {
+  PENDING = 'PENDING',
+  APPROVED = 'APPROVED',
+  REJECTED = 'REJECTED',
+  REPORTED = 'REPORTED',
+}
+
+export enum RatingMetric {
+  OVERALL = 'OVERALL',
+  QUALITY = 'QUALITY',
+  VALUE = 'VALUE',
+  DELIVERY = 'DELIVERY',
+  SERVICE = 'SERVICE',
+}
+
+export enum CartStatus {
+  ACTIVE = 'ACTIVE',
+  CHECKED_OUT = 'CHECKED_OUT',
+  ABANDONED = 'ABANDONED',
+  EXPIRED = 'EXPIRED',
+}
+
+export enum TicketStatus {
+  OPEN = 'OPEN',
+  IN_PROGRESS = 'IN_PROGRESS',
+  RESOLVED = 'RESOLVED',
+  CLOSED = 'CLOSED',
+}
+
+export enum TicketPriority {
+  LOW = 'LOW',
+  MEDIUM = 'MEDIUM',
+  HIGH = 'HIGH',
+}
+
+export enum ActivityType {
+  LOGIN = 'LOGIN',
+  ORDER = 'ORDER',
+  PAYMENT = 'PAYMENT',
+  PROFILE_UPDATE = 'PROFILE_UPDATE',
+  SUPPORT = 'SUPPORT',
+}
+
+export enum TokenType {
+  ACCESS = 'ACCESS',
+  REFRESH = 'REFRESH',
+}
