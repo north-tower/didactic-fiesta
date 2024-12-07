@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Module, MiddlewareConsumer, NestModule, RequestMethod } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { APP_GUARD } from '@nestjs/core';
@@ -6,6 +6,10 @@ import { RolesGuard } from './modules/auth/guards/roles.guard';
 import { AuthModule } from './modules/auth/auth.module';
 import configuration from './config/configuration';
 import { UsersModule } from './modules/users/users.module';
+import { ProductsModule } from './modules/products/products.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
+import { StaticFileHeaderMiddleware } from './common/middleware/corp-header.middleware'; // Import the CORP middleware
 
 @Module({
   imports: [
@@ -28,8 +32,14 @@ import { UsersModule } from './modules/users/users.module';
       }),
       inject: [ConfigService],
     }),
+    // Serve static files from the "uploads" folder
+    ServeStaticModule.forRoot({
+      rootPath: join('./uploads'),  // Path to the uploads directory
+      serveRoot: '/uploads',  // URL path to access files
+    }),
     AuthModule,
     UsersModule,
+    ProductsModule,
   ],
   providers: [
     {
@@ -38,4 +48,10 @@ import { UsersModule } from './modules/users/users.module';
     },
   ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(StaticFileHeaderMiddleware)  // Apply custom header middleware
+      .forRoutes('/uploads/*');  // Apply to all static files in /uploads
+  }
+}

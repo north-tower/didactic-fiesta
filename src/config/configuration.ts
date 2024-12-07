@@ -3,9 +3,9 @@ export default () => ({
   database: {
     host: process.env.DATABASE_HOST,
     port: parseInt(process.env.DATABASE_PORT, 10) || 3306,
-    username: process.env.DATABASE_USERNAME,
-    password: process.env.DATABASE_PASSWORD,
-    database: process.env.DATABASE_NAME,
+    username: process.env.DATABASE_USERNAME || 'mhki',
+    password: process.env.DATABASE_PASSWORD || '12345678',
+    database: process.env.DATABASE_NAME || 'shopeazz_db',
   },
   jwt: {
     secret: process.env.JWT_SECRET || 'super-secret',

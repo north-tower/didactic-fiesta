@@ -1,4 +1,3 @@
-// src/modules/auth/auth.controller.ts
 import {
   Controller,
   Post,
@@ -25,6 +24,11 @@ export class AuthController {
     private readonly authService: AuthService,
     private readonly tokenBlacklistService: TokenBlacklistService,
   ) {}
+
+  @Get('hello')
+  helloWorld(): string {
+    return 'Hello, World!';
+  }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
@@ -86,4 +90,10 @@ export class AuthController {
     this.tokenBlacklistService.addToBlacklist(accessToken);
     return { message: 'Successfully logged out from all devices' };
   }
+
+  @Post('verify-email')
+  async verifyEmail(@Body('token') token: string): Promise<{ loginUrl: string }> {
+  return this.authService.verifyEmail(token);
+}
+
 }

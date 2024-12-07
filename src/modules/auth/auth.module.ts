@@ -1,4 +1,3 @@
-// src/modules/auth/auth.module.ts
 import { Module } from '@nestjs/common';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
@@ -10,6 +9,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
 import { UsersModule } from '../users/users.module';
 import { RefreshToken } from './entities/refresh-token.entity';
 import { User } from '../users/entities/user.entity';
+import { Company } from '../companies/entities/company.entity'; // Import Company entity
 import { TokenBlacklistService } from './services/token-blacklist.service';
 
 @Module({
@@ -25,7 +25,7 @@ import { TokenBlacklistService } from './services/token-blacklist.service';
       }),
       inject: [ConfigService],
     }),
-    TypeOrmModule.forFeature([User, RefreshToken]),
+    TypeOrmModule.forFeature([User, RefreshToken, Company]), // Add Company here
     UsersModule,
   ],
   providers: [AuthService, JwtStrategy, TokenBlacklistService],

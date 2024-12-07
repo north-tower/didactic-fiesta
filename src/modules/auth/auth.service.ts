@@ -20,6 +20,13 @@ import { RefreshTokenDto } from './dto/refresh-token.dto';
 import { TokenType, UserRole } from 'src/common/enums/app.enum';
 import { TokenBlacklistService } from './services/token-blacklist.service';
 import { Company } from '../companies/entities/company.entity';
+import * as nodemailer from "nodemailer";
+import * as path from 'path';
+import Handlebars from 'handlebars';
+import * as fs from 'fs';
+
+
+
 
 @Injectable()
 export class AuthService {
@@ -82,11 +89,11 @@ export class AuthService {
     const existingUser = await this.usersRepository.findOne({
       where: { email: registerDto.email },
     });
-
+  
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
-
+  
     // Validate company association for employees
     let company: Company | null = null;
     if (registerDto.role === UserRole.EMPLOYEE) {
@@ -95,15 +102,15 @@ export class AuthService {
           'Company ID is required for employee registration',
         );
       }
-
+  
       company = await this.companiesRepository.findOne({
         where: { id: registerDto.companyId, isActive: true },
       });
-
+  
       if (!company) {
         throw new NotFoundException('Company not found or inactive');
       }
-
+  
       // Optional: Check if employeeId is unique within the company
       if (registerDto.employeeId) {
         const existingEmployee = await this.usersRepository.findOne({
@@ -112,7 +119,7 @@ export class AuthService {
             company: { id: registerDto.companyId },
           },
         });
-
+  
         if (existingEmployee) {
           throw new ConflictException(
             'Employee ID already exists in this company',
@@ -124,21 +131,30 @@ export class AuthService {
       delete registerDto.companyId;
       delete registerDto.employeeId;
     }
-
+  
     // Hash password
     const hashedPassword = await bcrypt.hash(
       registerDto.password,
       this.configService.get('security.bcryptSaltRounds'),
     );
-
+  
+    // Generate email verification token and expiration
+    const emailVerificationToken = await this.generateToken(
+      registerDto.email, // Use email or other identifier for token generation
+      TokenType.ACCESS,
+    );
+    const emailVerificationExpires = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+  
     // Create user with appropriate associations
     const user = this.usersRepository.create({
       ...registerDto,
       password: hashedPassword,
       emailVerified: false,
-      company: company, // Will be null for non-employees
+      emailVerificationToken,
+      emailVerificationExpires,
+      company, // Will be null for non-employees
     });
-
+  
     // Add role-specific initialization
     switch (registerDto.role) {
       case UserRole.EMPLOYEE:
@@ -153,14 +169,14 @@ export class AuthService {
         };
         break;
       case UserRole.ADMIN:
-        // You might want to prevent admin registration or handle it specially
         throw new BadRequestException(
           'Admin registration is not allowed through this endpoint',
         );
     }
-
+  
+    // Save the user
     await this.usersRepository.save(user);
-
+  
     // Prepare response
     const response: RegisterResponseDto = {
       id: user.id,
@@ -170,7 +186,7 @@ export class AuthService {
       role: user.role,
       message: this.getRegistrationMessage(user.role),
     };
-
+  
     // Add company info for employees
     if (company) {
       response.company = {
@@ -178,12 +194,44 @@ export class AuthService {
         name: company.name,
       };
     }
-
-    // Optionally: Send welcome email based on role
+  
+    // Send welcome email including verification link
     await this.sendWelcomeEmail(user);
-
+  
     return response;
   }
+
+  async verifyEmail(token: string): Promise<{ loginUrl: string }> {
+    const user = await this.usersRepository.findOne({
+      where: { emailVerificationToken: token },
+    });
+  
+    if (!user) {
+      throw new NotFoundException('Invalid or expired token');
+    }
+  
+    // Compare expiration time
+    // if (new Date(user.emailVerificationExpires) < new Date()) {
+    //   throw new BadRequestException('Token has expired');
+    // }
+  
+    // Mark the user as verified
+    user.emailVerified = true;
+    user.emailVerificationToken = null;
+    user.emailVerificationExpires = null;
+  
+    await this.usersRepository.save(user);
+  
+    // Generate the login URL with the username in the query parameters
+    const loginUrl = `http://localhost:6900/login?username=${encodeURIComponent(user.firstName)}`;
+    console.log(loginUrl)
+  
+    return {loginUrl};
+  }
+  
+  
+  
+  
 
   private getRegistrationMessage(role: UserRole): string {
     switch (role) {
@@ -197,11 +245,73 @@ export class AuthService {
   }
 
   private async sendWelcomeEmail(user: User): Promise<void> {
-    // Implementation depends on your email service
-    // Different templates for different roles
-    const template = this.getEmailTemplate(user.role);
-    // await this.emailService.send(user.email, template);
+    const transporter = nodemailer.createTransport({
+      host: this.configService.get('EMAIL_HOST') || 'localhost',
+      port: parseInt(this.configService.get('EMAIL_PORT', '1025')),
+      secure: false,
+      auth: {
+        user: this.configService.get('EMAIL_USER') || 'm@gmail.com',
+        pass: this.configService.get('EMAIL_PASSWORD') || 'miki',
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+      authMethod: 'PLAIN',
+    });
+  
+    // Retrieve email template info
+    const emailTemplateInfo = this.getEmailTemplate(user.role);
+  
+    // Ensure the user's email verification token exists
+    if (!user.emailVerificationToken) {
+      throw new Error('Email verification token is missing for the user.');
+    }
+  
+    // Resolve the template path
+    const templatePath = path.resolve(`./templates/${emailTemplateInfo.template}.html`);
+  
+    try {
+      console.log('Template Path:', templatePath);
+  
+      // Check if the template file exists
+      if (!fs.existsSync(templatePath)) {
+        console.error('Template file not found:', templatePath);
+        throw new Error('Email template file does not exist');
+      }
+  
+      // Read and compile the template
+      const source = fs.readFileSync(templatePath, 'utf-8');
+      const template = Handlebars.compile(source);
+  
+      // Use the email verification token in the activation link
+      const activationLink = `http://localhost:6900/auth/verify?token=${user.emailVerificationToken}`;
+  
+      const replacements = {
+        activationLink,
+        expiration: user.emailVerificationExpires.toISOString(), // Optional: Include expiration timestamp
+      };
+  
+      const htmlToSend = template(replacements);
+  
+      await transporter.sendMail({
+        from: this.configService.get('EMAIL_FROM') || 'm@gmail.com',
+        to: user.email,
+        subject: emailTemplateInfo.subject,
+        html: htmlToSend,
+        text: `Welcome to Shopeazz! To activate your account, visit: ${activationLink}`,
+      });
+    } catch (error) {
+      console.error('Error sending welcome email:', error);
+      throw new Error('Failed to send welcome email');
+    }
   }
+  
+
+  
+
+  
+
+  
 
   private getEmailTemplate(role: UserRole): any {
     switch (role) {

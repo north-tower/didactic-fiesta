@@ -4,6 +4,7 @@ import { MediaPurpose, MediaType } from 'src/common/enums/app.enum';
 import { Entity, Column, ManyToOne, OneToMany } from 'typeorm';
 import { MediaVariant } from './media-variant.entity';
 import { MediaFolder } from './media-folder.entity';
+import { Product } from 'src/modules/products/entities/product.entity';
 
 @Entity('media')
 export class Media extends BaseEntity {
@@ -65,4 +66,8 @@ export class Media extends BaseEntity {
     cascade: true,
   })
   variants: MediaVariant[];
+
+  @ManyToOne(() => Product, (product) => product.images, { onDelete: 'CASCADE' })
+  product: Product;
+
 }
