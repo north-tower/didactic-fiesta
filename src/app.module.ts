@@ -27,7 +27,7 @@ import { StaticFileHeaderMiddleware } from './common/middleware/corp-header.midd
         password: configService.get('database.password'),
         database: configService.get('database.database'),
         entities: [__dirname + '/**/*.entity{.ts,.js}'],
-        synchronize: true,
+        synchronize: false,
         logging: true,
       }),
       inject: [ConfigService],
